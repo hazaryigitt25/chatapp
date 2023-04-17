@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<br>
+<section class="hero is-medium is-info" style="margin-left:150px; margin-right:150px;">
+    <div class="hero-body">
+      <form class="d-flex">
+        {% csrf_token %}
+        <input type="text" name = "keyword" class="input-sm" maxlength="64" placeholder="Search">
+        <button class="btn btn-primary" type="submit">Search</button>
+      </form>
+      <br>
+        <a href="/msg/createchat" class="button is-primary is-light">Create Chat</a>
+        <hr>
+        <table class="table">
+            <thead>
+              <tr>
+                <th>Chat Name</th>
+                <th>Chat Admin</th>
+                <th>Chat Password</th>
+                <th>Join</th>
+              </tr>
+            </thead>
+            {% if chats %}
+            {% for chat in chats %}
+            <tr class="is-selected">
+                <td>{{chat.chat_name}}</td>
+                <td>{{chat.chat_admin}}</td>
+                <td>{{ chat.chat_password }}</td>
+                <td><a href="/msg/chat/join/{{chat.id}}" class="button is-success is-light">Join</a></td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <div class="alert alert-danger">
+                There Is No Chat Here
+            </div>
+            {% endif %}
+            
+        </table>
+    </div>
+  </section>
+
+{% endblock body %}

@@ -1,0 +1,155 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<section class="hero is-info is-fullheight" style="margin-left:200px; margin-right:200px;">
+    <div class="hero-body" >
+      <div class="" style="margin-top:-150px; margin-left: 20%;">
+        {% if chat.chat_admin == request.user.username %}
+        <h3 style="margin-top:110px;"><strong>{{chat.chat_name}}</strong></h3>
+        <a href="/msg/chat/delete/{{chat.id}}" class="button is-danger is-light">Delete</a>
+        {% else %}
+        <h3 style="margin-top:100px;"><strong>{{chat.chat_name}}</strong></h3>
+        {% endif %}
+        <hr>
+        
+         <br>
+        <div class="chat-messages space-y-3" id="chat-messages" style="margin-right:20%;">
+        {% for msg in message %}
+        {% if msg.author == request.user.username %}
+        <div class="box" style="margin-left: 30%; display: flex; justify-content: right; word-wrap: break-word; word-break: break-word;">
+          <div class="media-content is-right">
+            <div class="content">
+              <p style="tex-align:end;">
+                <strong>{{msg.author}}</strong>
+                <br>
+                <hr>
+                {{msg.message}}
+              </p>
+            </div>
+            
+          </div>
+      
+        </div>
+        {% else %}
+        <div class="box" style="margin-right:25%; display: flex; justify-content: left; word-wrap: break-word; word-break: break-word;">
+          <div class="media-content">
+            <div class="content">
+              <p>
+                <strong>{{msg.author}}</strong>
+                <br>
+                <hr>
+                {{msg.message}}
+              </p>
+            </div>
+            
+          </div>
+      
+        </div>
+        {% endif %}
+        
+        {% endfor %}
+      </div>
+      <br>
+        <form method="post" class="flex">
+            {% csrf_token %}
+          <div class="field">
+            <div class="control" style="margin-right:300px;">
+              <input class="input" id="chat-message-input" type="text" name="content" placeholder="Type message">
+            </div>
+            <br>
+            <div class="control">
+              <button id="chat-message-submit" class="button is-link">Submit</button>
+            </div>
+          </div>
+         </form>
+          
+      </div>
+    </div>
+  </section>
+  {{ chat.id|json_script:"json-chatId" }}
+  {{ request.user.username|json_script:"json-username"}}
+  <script>
+    const chatId = JSON.parse(document.getElementById('json-chatId').textContent)
+    const userName = JSON.parse(document.getElementById('json-username').textContent)
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/'
+        + 'msg/'
+        + 'chat/'
+        + chatId
+        + '/'
+    );
+    chatSocket.onmessage = function(e) {
+        console.log('onmessage')
+
+        const data = JSON.parse(e.data);
+
+        if (data.message){
+          if(data.username===userName){
+            let html = '<div class="box" style="margin-left: 30%; display: flex; justify-content: right; word-wrap: break-word; word-break: break-word;">';
+                html += '<div class="media-content is-right">';
+                html += '<div class="content">';
+                html += '<p>';
+                html += '<strong>' + data.username + '</strong>';
+                html += '<br>';
+                html += '<hr>';
+                html += data.message;
+                html += '</p>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+            document.querySelector('#chat-messages').innerHTML += html;
+            scrollToBottom();
+          }else{
+            let html = '<div class="box" style="margin-right: 30%; display: flex; justify-content: left; word-wrap: break-word; word-break: break-word;">';
+              html += '<div class="media-content">';
+              html += '<div class="content">';
+              html += '<p>';
+              html += '<strong>' + data.username + '</strong>';
+              html += '<br>';
+              html += '<hr>';
+              html += data.message;
+              html += '</p>';
+              html += '</div>';
+              html += '</div>';
+              html += '</div>';
+            document.querySelector('#chat-messages').innerHTML += html;
+            scrollToBottom();
+          }
+                
+        }else{
+            alert('The message was empty')
+        }
+    }
+
+    chatSocket.onclose = function(e) {
+        console.log('onclose')
+    }
+
+
+    document.querySelector('#chat-message-submit').onclick = function(e){
+       e.preventDefault();
+       const messageInputDom = document.querySelector('#chat-message-input');
+       const message = messageInputDom.value;
+       
+       chatSocket.send(JSON.stringify({
+            'message':message,
+            'username':userName,
+            'chat':chatId
+       }));
+
+       messageInputDom.value = '';
+
+       return false;
+    }
+
+
+    function scrollToBottom(){
+        const objDiv = document.querySelector('#chat-messages');
+        objDiv.scrollTop = objDiv.scrollHeight;
+    }
+
+    scrollToBottom();
+  </script>
+{% endblock body %}

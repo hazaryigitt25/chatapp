@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+{% load crispy_forms_tags %}
+<br>
+<section class="hero is-medium is-info" style="margin-left:150px; margin-right:150px;">
+    <div class="hero-body">
+        <div class="row justify-content-md-center">
+            <div class="col-md-auto">
+                <h3><strong>Create Chat</strong></h3>
+                <hr>
+                <form method="post">
+                {% csrf_token %}
+                {{form|crispy}}
+                <br>
+                <button type="submit" class="btn btn-primary">Create</button>
+                </form>
+            </div> 
+        </div>
+    </div>
+  </section>
+
+{% endblock body %}

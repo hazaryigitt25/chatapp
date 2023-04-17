@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<br>
+<section class="hero is-medium is-info" style="margin-left:150px; margin-right:150px;">
+    <div class="hero-body">
+        <h5><strong>User, {{ request.user.username }}</strong></h5>
+        <hr>
+        {% if request.user.is_staff %}
+        <a href="/msg/allchats" class="button is-link">Show All Chats</a>
+        {% endif %}
+        <a href="/profile/changepassword" class="button is-link">Change Password</a>
+    </div>
+  </section>
+
+{% endblock body %}

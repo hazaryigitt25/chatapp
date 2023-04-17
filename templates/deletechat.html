@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<section class="hero is-info" style="margin-left:200px; margin-right:200px;">
+    <div class="hero-body">
+        <h5><strong>Are you sure do you want to delete this chat?</strong></h5>
+        <br><br>
+        <p>
+        <a href="/msg/chat/{{id}}" class="button is-danger">No,Thanks.</a>
+        <br><br>
+        <form method="post">
+            {% csrf_token %}
+            <button class="button is-light">Yes, I am sure.</button>
+        </form>
+        </p>
+    </div>
+</section>
+{% endblock body %}
